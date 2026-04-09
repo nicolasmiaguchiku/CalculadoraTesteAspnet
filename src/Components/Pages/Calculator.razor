@@ -1,6 +1,5 @@
 ﻿@page "/"
 @rendermode InteractiveServer
-@inject CalculadoraTeste.Services.CalculationStateService StateService
 @inject IHttpClientFactory HttpClientFactory
 
 <PageTitle>Calculadora</PageTitle>
@@ -23,9 +22,10 @@
         <button type="submit" class="btn btn-primary" @onclick='() => Calculation.Operation = "/"'> Divisão</button>
     </div>
 </EditForm>
+
 @if (!string.IsNullOrEmpty(Message))
 {
-    <div class="alert alert-success mt-3 text-center">
+    <div class="alert @AlertClass mt-3 text-center">
         @Message
     </div>
 }
@@ -33,6 +33,7 @@
 @code {
     private CalculationViwModel Calculation { get; set; } = new();
     private string? Message;
+    private string AlertClass = "alert-success";
 
     private async Task HandleSubmit()
     {
@@ -55,7 +56,6 @@
 
         var newCalc = new CalculationDto
         {
-            Id = StateService.NextId(),
             ValueA = n1,
             ValueB = n2,
             Operation = operation,
@@ -63,23 +63,22 @@
             CreatedAt = DateTime.Now
         };
 
-        StateService.Calculations.Add(newCalc);
+        var client = HttpClientFactory.CreateClient("CalcApi");
+        var response = await client.PostAsJsonAsync("Calculadora?apikey=NIC202604", newCalc);
 
-        try
+        if (!response.IsSuccessStatusCode)
         {
-            var client = HttpClientFactory.CreateClient("CalcApi");
-            await client.PostAsJsonAsync("calcapi/apiKey=NIC202604", newCalc);
-        }
-        catch (Exception ex)
-        {
-            Message = $"Erro ao enviar dados: {ex.Message}";
+            Message = $"Erro ao armazenar os dados: {response.ReasonPhrase}";
+            AlertClass = "alert-danger";
             return;
         }
 
-        Message = $"Dados armazenados com sucesso, ID de Armazenamento {newCalc.Id}";
+        var result = await response.Content.ReadFromJsonAsync<int>();
+        Message = $"Dados armazenados com sucesso, ID de Armazenamento {result}";
+        AlertClass = "alert-success";
 
-        Calculation.ValueA = null;
-        Calculation.ValueB = null;
+        Calculation.ValueA = 0;
+        Calculation.ValueB = 0;
     }
 
     public class CalculationViwModel
