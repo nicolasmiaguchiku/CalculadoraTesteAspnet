@@ -1,14 +1,10 @@
 using CalculadoraTeste.Components;
-using CalculadoraTeste.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddScoped<CalculationStateService>();
-
 builder.Services.AddHttpClient("CalcApi", client =>
 {
-    client.BaseAddress = new Uri("http://pekus.ddns.net/");
+    client.BaseAddress = new Uri("http://intranet.pekus.com.br/calcapi/api/");
 });
 
 builder.Services.AddRazorComponents()
