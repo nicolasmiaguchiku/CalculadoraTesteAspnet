@@ -1,0 +1,36 @@
+﻿@page "/CalculationHistory"
+@rendermode InteractiveServer
+@inject CalculadoraTeste.Services.CalculationStateService StateService
+
+<PageTitle>Histórico de Cálculos</PageTitle>
+
+<h3 class="mt-4">Histórico de Cálculos</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Valor A</th>
+            <th>Valor B</th>
+            <th>Resultado</th>
+            <th>Operação</th>
+            <th>Data</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in StateService.Calculations)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.ValueA</td>
+                <td>@item.ValueB</td>
+                <td>@item.Result</td>
+                <td>@item.Operation</td>
+                <td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+}
