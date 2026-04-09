@@ -1,6 +1,7 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 @inject CalculadoraTeste.Services.CalculationStateService StateService
+@inject IHttpClientFactory HttpClientFactory
 
 <PageTitle>Calculadora</PageTitle>
 
@@ -33,12 +34,12 @@
     private CalculationViwModel Calculation { get; set; } = new();
     private string? Message;
 
-    private void HandleSubmit()
+    private async Task HandleSubmit()
     {
-        Calculate(Calculation.Operation);
+        await CalculateAsync(Calculation.Operation);
     }
 
-    public void Calculate(string operation)
+    public async Task CalculateAsync(string operation)
     {
         var n1 = Calculation.ValueA!.Value;
         var n2 = Calculation.ValueB!.Value;
@@ -63,6 +64,17 @@
         };
 
         StateService.Calculations.Add(newCalc);
+
+        try
+        {
+            var client = HttpClientFactory.CreateClient("CalcApi");
+            await client.PostAsJsonAsync("calcapi/apiKey=NIC202604", newCalc);
+        }
+        catch (Exception ex)
+        {
+            Message = $"Erro ao enviar dados: {ex.Message}";
+            return;
+        }
 
         Message = $"Dados armazenados com sucesso, ID de Armazenamento {newCalc.Id}";
 
