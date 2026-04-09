@@ -1,0 +1,62 @@
+﻿@page "/"
+@using System.ComponentModel.DataAnnotations
+@rendermode InteractiveServer
+
+<PageTitle>Calculadora</PageTitle>
+
+<h1 class="text-center">Calculadora</h1>
+
+<EditForm Model="Calculation" OnValidSubmit="HandleSubmit" FormName="Calculadora" class="row">
+    <DataAnnotationsValidator />
+    <div class="col-md-6 d-flex flex-column justify-content-center">
+        <InputNumber @bind-Value="Calculation.Number1" class="form-control w-100" placeholder="Digite o primeiro valor" />
+        <ValidationMessage For="@(() => Calculation.Number1)" class="text-danger" />
+
+        <InputNumber @bind-Value="Calculation.Number2" class="form-control mt-2 w-100" placeholder="Digite o segundo valor" />
+        <ValidationMessage For="@(() => Calculation.Number2)" class="text-danger" />
+    </div>
+    <div class="col-md-6 d-flex flex-column justify-content-center">
+        <button type="submit" class="btn btn-primary mb-2" @onclick='() => Calculation.Operation = "+"'>Adição</button>
+        <button type="submit" class="btn btn-primary mb-2" @onclick='() => Calculation.Operation = "-"'>Subtração</button>
+        <button type="submit" class="btn btn-primary mb-2" @onclick='() => Calculation.Operation = "*"'>Multiplicação</button>
+        <button type="submit" class="btn btn-primary" @onclick='() => Calculation.Operation = "/"'> Divisão</button>
+    </div>
+</EditForm>
+
+@code {
+    private CalculationViwModel Calculation { get; set; } = new();
+
+    private void HandleSubmit()
+    {
+        Calculate(Calculation.Operation);
+    }
+
+    public void Calculate(string operation)
+    {
+        var n1 = Calculation.Number1!.Value;
+        var n2 = Calculation.Number2!.Value;
+
+        Calculation.Result = operation switch
+        {
+            "+" => n1 + n2,
+            "-" => n1 - n2,
+            "*" => n1 * n2,
+            "/" => n1 / n2,
+            _ => throw new InvalidOperationException("Operação inválida")
+        };
+
+        Console.WriteLine(Calculation.Result);
+    }
+
+    public class CalculationViwModel
+    {
+        [Required(ErrorMessage = "O primeiro valor é obrigatório")]
+        public int? Number1 { get; set; }
+
+        [Required(ErrorMessage = "O segundo valor é obrigatório")]
+        public int? Number2 { get; set; }
+
+        public string Operation { get; set; } = string.Empty;
+        public int Result { get; set; }
+    }
+}
