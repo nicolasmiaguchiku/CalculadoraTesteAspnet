@@ -1,6 +1,6 @@
 ﻿@page "/"
-@using System.ComponentModel.DataAnnotations
 @rendermode InteractiveServer
+@inject CalculadoraTeste.Services.CalculationStateService StateService
 
 <PageTitle>Calculadora</PageTitle>
 
@@ -9,11 +9,11 @@
 <EditForm Model="Calculation" OnValidSubmit="HandleSubmit" FormName="Calculadora" class="row">
     <DataAnnotationsValidator />
     <div class="col-md-6 d-flex flex-column justify-content-center">
-        <InputNumber @bind-Value="Calculation.Number1" class="form-control w-100" placeholder="Digite o primeiro valor" />
-        <ValidationMessage For="@(() => Calculation.Number1)" class="text-danger" />
+        <InputNumber @bind-Value="Calculation.ValueA" class="form-control w-100" placeholder="Digite o primeiro valor" />
+        <ValidationMessage For="@(() => Calculation.ValueA)" class="text-danger" />
 
-        <InputNumber @bind-Value="Calculation.Number2" class="form-control mt-2 w-100" placeholder="Digite o segundo valor" />
-        <ValidationMessage For="@(() => Calculation.Number2)" class="text-danger" />
+        <InputNumber @bind-Value="Calculation.ValueB" class="form-control mt-2 w-100" placeholder="Digite o segundo valor" />
+        <ValidationMessage For="@(() => Calculation.ValueB)" class="text-danger" />
     </div>
     <div class="col-md-6 d-flex flex-column justify-content-center">
         <button type="submit" class="btn btn-primary mb-2" @onclick='() => Calculation.Operation = "+"'>Adição</button>
@@ -22,9 +22,16 @@
         <button type="submit" class="btn btn-primary" @onclick='() => Calculation.Operation = "/"'> Divisão</button>
     </div>
 </EditForm>
+@if (!string.IsNullOrEmpty(Message))
+{
+    <div class="alert alert-success mt-3 text-center">
+        @Message
+    </div>
+}
 
 @code {
     private CalculationViwModel Calculation { get; set; } = new();
+    private string? Message;
 
     private void HandleSubmit()
     {
@@ -33,8 +40,8 @@
 
     public void Calculate(string operation)
     {
-        var n1 = Calculation.Number1!.Value;
-        var n2 = Calculation.Number2!.Value;
+        var n1 = Calculation.ValueA!.Value;
+        var n2 = Calculation.ValueB!.Value;
 
         Calculation.Result = operation switch
         {
@@ -45,16 +52,31 @@
             _ => throw new InvalidOperationException("Operação inválida")
         };
 
-        Console.WriteLine(Calculation.Result);
+        var newCalc = new CalculationDto
+        {
+            Id = StateService.NextId(),
+            ValueA = n1,
+            ValueB = n2,
+            Operation = operation,
+            Result = Calculation.Result,
+            CreatedAt = DateTime.Now
+        };
+
+        StateService.Calculations.Add(newCalc);
+
+        Message = $"Dados armazenados com sucesso, ID de Armazenamento {newCalc.Id}";
+
+        Calculation.ValueA = null;
+        Calculation.ValueB = null;
     }
 
     public class CalculationViwModel
     {
         [Required(ErrorMessage = "O primeiro valor é obrigatório")]
-        public int? Number1 { get; set; }
+        public int? ValueA { get; set; }
 
         [Required(ErrorMessage = "O segundo valor é obrigatório")]
-        public int? Number2 { get; set; }
+        public int? ValueB { get; set; }
 
         public string Operation { get; set; } = string.Empty;
         public int Result { get; set; }
