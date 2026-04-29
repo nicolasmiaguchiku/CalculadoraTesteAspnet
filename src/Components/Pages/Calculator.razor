@@ -1,13 +1,16 @@
 ﻿@page "/"
-
+@inject IDialogService DialogService
 @rendermode InteractiveServer
 @inject IHttpClientFactory HttpClientFactory
 
 <PageTitle>Calculadora</PageTitle>
 
-<FluentCard style="padding:20px; max-width:500px;">
+<FluentCard>
     <EditForm Model="Calculation" OnValidSubmit="HandleSubmit" FormName="Calculadora" class="row">
-        <h3 class="text-center">Calculo</h3>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="text-center">Calculo</h3>
+            <FluentButton Appearance="Appearance.Accent" @onclick="OpenCalculadoraForm">Histórico de Cálculos</FluentButton>
+        </div>
         <DataAnnotationsValidator />
         <div class="col-md-6 d-flex flex-column justify-content-center">
             <FluentNumberField Label="Valor A" Placeholder="Digite o primeiro valor" HideStep="true" @bind-Value="Calculation.ValueA"></FluentNumberField>
@@ -17,10 +20,10 @@
             <ValidationMessage For="@(() => Calculation.ValueB)" class="text-danger" />
         </div>
         <div class="col-md-6 d-flex flex-column justify-content-center">
-            <FluentButton Appearance="Appearance.Accent" @onclick='() => CalculateAsync("+")'>Adição</FluentButton>
-            <FluentButton Appearance="Appearance.Accent" @onclick='() => CalculateAsync("-")'>Subtração</FluentButton>
-            <FluentButton Appearance="Appearance.Accent" @onclick='() => CalculateAsync("*")'>Multiplicação</FluentButton>
-            <FluentButton Appearance="Appearance.Accent" @onclick='() => CalculateAsync("/")'> Divisão</FluentButton>
+            <FluentButton Style="margin: 5px" Appearance="Appearance.Accent" @onclick='() => CalculateAsync("+")'>Adição</FluentButton>
+            <FluentButton Style="margin: 5px" Appearance="Appearance.Accent" @onclick='() => CalculateAsync("-")'>Subtração</FluentButton>
+            <FluentButton Style="margin: 5px" Appearance="Appearance.Accent" @onclick='() => CalculateAsync("*")'>Multiplicação</FluentButton>
+            <FluentButton Style="margin: 5px" Appearance="Appearance.Accent" @onclick='() => CalculateAsync("/")'> Divisão</FluentButton>
         </div>
     </EditForm>
 </FluentCard>
@@ -81,5 +84,17 @@
 
         Calculation.ValueA = 0;
         Calculation.ValueB = 0;
+    }
+
+    private async Task OpenCalculadoraForm()
+    {
+        await DialogService.ShowDialogAsync<CalculadoraForm>(new DialogParameters()
+        {
+            Title = "Histórico de Cálculos",
+            ShowDismiss = true,
+            PrimaryAction = "Cancelar",
+            SecondaryAction = null,
+            Width = "50%"
+        });
     }
 }
