@@ -1,4 +1,5 @@
 using CalculadoraTeste.Components;
+using Microsoft.FluentUI.AspNetCore.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,8 +11,10 @@ builder.Services.AddHttpClient("CalcApi", client =>
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-var app = builder.Build();
+builder.Services.AddHttpClient()
+    .AddFluentUIComponents();
 
+var app = builder.Build();
 
 app.UseHsts()
     .UseHttpsRedirection();

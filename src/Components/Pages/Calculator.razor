@@ -1,27 +1,32 @@
 ﻿@page "/"
+@inject IDialogService DialogService
 @rendermode InteractiveServer
 @inject IHttpClientFactory HttpClientFactory
 
 <PageTitle>Calculadora</PageTitle>
 
-<h1 class="text-center">Calculadora</h1>
+<FluentCard>
+    <EditForm Model="Calculation" OnValidSubmit="HandleSubmit" FormName="Calculadora" class="row">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="text-center">Calculo</h3>
+            <FluentButton Appearance="Appearance.Accent" @onclick="OpenCalculadoraForm">Histórico de Cálculos</FluentButton>
+        </div>
+        <DataAnnotationsValidator />
+        <div class="col-md-6 d-flex flex-column justify-content-center">
+            <FluentNumberField Label="Valor A" Placeholder="Digite o primeiro valor" HideStep="true" @bind-Value="Calculation.ValueA"></FluentNumberField>
+            <ValidationMessage For="@(() => Calculation.ValueA)" class="text-danger" />
 
-<EditForm Model="Calculation" OnValidSubmit="HandleSubmit" FormName="Calculadora" class="row">
-    <DataAnnotationsValidator />
-    <div class="col-md-6 d-flex flex-column justify-content-center">
-        <InputNumber @bind-Value="Calculation.ValueA" class="form-control w-100" placeholder="Digite o primeiro valor" />
-        <ValidationMessage For="@(() => Calculation.ValueA)" class="text-danger" />
-
-        <InputNumber @bind-Value="Calculation.ValueB" class="form-control mt-2 w-100" placeholder="Digite o segundo valor" />
-        <ValidationMessage For="@(() => Calculation.ValueB)" class="text-danger" />
-    </div>
-    <div class="col-md-6 d-flex flex-column justify-content-center">
-        <button type="submit" class="btn btn-primary mb-2" @onclick='() => Calculation.Operation = "+"'>Adição</button>
-        <button type="submit" class="btn btn-primary mb-2" @onclick='() => Calculation.Operation = "-"'>Subtração</button>
-        <button type="submit" class="btn btn-primary mb-2" @onclick='() => Calculation.Operation = "*"'>Multiplicação</button>
-        <button type="submit" class="btn btn-primary" @onclick='() => Calculation.Operation = "/"'> Divisão</button>
-    </div>
-</EditForm>
+            <FluentNumberField Label="Valor B" Placeholder="Digite o segundo valor" HideStep="true" @bind-Value="Calculation.ValueB"></FluentNumberField>
+            <ValidationMessage For="@(() => Calculation.ValueB)" class="text-danger" />
+        </div>
+        <div class="col-md-6 d-flex flex-column justify-content-center">
+            <FluentButton Style="margin: 5px" Appearance="Appearance.Accent" @onclick='() => CalculateAsync("+")'>Adição</FluentButton>
+            <FluentButton Style="margin: 5px" Appearance="Appearance.Accent" @onclick='() => CalculateAsync("-")'>Subtração</FluentButton>
+            <FluentButton Style="margin: 5px" Appearance="Appearance.Accent" @onclick='() => CalculateAsync("*")'>Multiplicação</FluentButton>
+            <FluentButton Style="margin: 5px" Appearance="Appearance.Accent" @onclick='() => CalculateAsync("/")'> Divisão</FluentButton>
+        </div>
+    </EditForm>
+</FluentCard>
 
 @if (!string.IsNullOrEmpty(Message))
 {
@@ -31,7 +36,7 @@
 }
 
 @code {
-    private CalculationViwModel Calculation { get; set; } = new();
+    private CalculoModel Calculation { get; set; } = new();
     private string? Message;
     private string AlertClass = "alert-success";
 
@@ -42,8 +47,15 @@
 
     public async Task CalculateAsync(string operation)
     {
-        var n1 = Calculation.ValueA!.Value;
-        var n2 = Calculation.ValueB!.Value;
+        var n1 = Calculation.ValueA;
+        var n2 = Calculation.ValueB;
+
+        if(n1 == 0 && n2 == 0 && operation == "/")
+        {
+            Message = "Não é possível dividir por zero.";
+            AlertClass = "alert-danger";
+            return;
+        }
 
         Calculation.Result = operation switch
         {
@@ -81,15 +93,15 @@
         Calculation.ValueB = 0;
     }
 
-    public class CalculationViwModel
+    private async Task OpenCalculadoraForm()
     {
-        [Required(ErrorMessage = "O primeiro valor é obrigatório")]
-        public int? ValueA { get; set; }
-
-        [Required(ErrorMessage = "O segundo valor é obrigatório")]
-        public int? ValueB { get; set; }
-
-        public string Operation { get; set; } = string.Empty;
-        public int Result { get; set; }
+        await DialogService.ShowDialogAsync<CalculadoraForm>(new DialogParameters()
+        {
+            Title = "Histórico de Cálculos",
+            ShowDismiss = true,
+            PrimaryAction = "Cancelar",
+            SecondaryAction = null,
+            Width = "50%"
+        });
     }
 }
