@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using CalculadoraTeste.Components.Model
 @rendermode InteractiveServer
 @inject IHttpClientFactory HttpClientFactory
 
@@ -9,17 +10,17 @@
 <EditForm Model="Calculation" OnValidSubmit="HandleSubmit" FormName="Calculadora" class="row">
     <DataAnnotationsValidator />
     <div class="col-md-6 d-flex flex-column justify-content-center">
-        <InputNumber @bind-Value="Calculation.ValueA" class="form-control w-100" placeholder="Digite o primeiro valor" />
+        <FluentNumberField Label="Valor A" Placeholder="Digite o primeiro valor" HideStep="true" @bind-Value="Calculation.ValueA"></FluentNumberField>
         <ValidationMessage For="@(() => Calculation.ValueA)" class="text-danger" />
 
-        <InputNumber @bind-Value="Calculation.ValueB" class="form-control mt-2 w-100" placeholder="Digite o segundo valor" />
+        <FluentNumberField Label="Valor B" Placeholder="Digite o segundo valor" HideStep="true" @bind-Value="Calculation.ValueB"></FluentNumberField>
         <ValidationMessage For="@(() => Calculation.ValueB)" class="text-danger" />
     </div>
     <div class="col-md-6 d-flex flex-column justify-content-center">
-        <button type="submit" class="btn btn-primary mb-2" @onclick='() => Calculation.Operation = "+"'>Adição</button>
-        <button type="submit" class="btn btn-primary mb-2" @onclick='() => Calculation.Operation = "-"'>Subtração</button>
-        <button type="submit" class="btn btn-primary mb-2" @onclick='() => Calculation.Operation = "*"'>Multiplicação</button>
-        <button type="submit" class="btn btn-primary" @onclick='() => Calculation.Operation = "/"'> Divisão</button>
+        <FluentButton Appearance="Appearance.Accent" @onclick='() => CalculateAsync("+")'>Adição</FluentButton>
+        <FluentButton Appearance="Appearance.Accent" @onclick='() => CalculateAsync("-")'>Subtração</FluentButton>
+        <FluentButton Appearance="Appearance.Accent" @onclick='() => CalculateAsync("*")'>Multiplicação</FluentButton>
+        <FluentButton Appearance="Appearance.Accent" @onclick='() => CalculateAsync("/")'> Divisão</FluentButton>
     </div>
 </EditForm>
 
@@ -31,7 +32,7 @@
 }
 
 @code {
-    private CalculationViwModel Calculation { get; set; } = new();
+    private CalculoModel Calculation { get; set; } = new();
     private string? Message;
     private string AlertClass = "alert-success";
 
@@ -42,8 +43,8 @@
 
     public async Task CalculateAsync(string operation)
     {
-        var n1 = Calculation.ValueA!.Value;
-        var n2 = Calculation.ValueB!.Value;
+        var n1 = Calculation.ValueA;
+        var n2 = Calculation.ValueB;
 
         Calculation.Result = operation switch
         {
@@ -79,17 +80,5 @@
 
         Calculation.ValueA = 0;
         Calculation.ValueB = 0;
-    }
-
-    public class CalculationViwModel
-    {
-        [Required(ErrorMessage = "O primeiro valor é obrigatório")]
-        public int? ValueA { get; set; }
-
-        [Required(ErrorMessage = "O segundo valor é obrigatório")]
-        public int? ValueB { get; set; }
-
-        public string Operation { get; set; } = string.Empty;
-        public int Result { get; set; }
     }
 }
