@@ -50,6 +50,13 @@
         var n1 = Calculation.ValueA;
         var n2 = Calculation.ValueB;
 
+        if(n1 == 0 && n2 == 0 && operation == "/")
+        {
+            Message = "Não é possível dividir por zero.";
+            AlertClass = "alert-danger";
+            return;
+        }
+
         Calculation.Result = operation switch
         {
             "+" => n1 + n2,
