@@ -26,19 +26,20 @@
             <FluentButton Style="margin: 5px" Appearance="Appearance.Accent" @onclick='() => CalculateAsync("/")'> Divisão</FluentButton>
         </div>
     </EditForm>
-</FluentCard>
-
-@if (!string.IsNullOrEmpty(Message))
-{
-    <div class="alert @AlertClass mt-3 text-center">
-        @Message
+    <div>
+        @if (!string.IsNullOrEmpty(Message))
+        {
+            <FluentMessageBar Intent="@(IsSuccess ? MessageIntent.Success : MessageIntent.Error)">
+                @Message
+            </FluentMessageBar>
+        }
     </div>
-}
+</FluentCard>
 
 @code {
     private CalculoModel Calculation { get; set; } = new();
     private string? Message;
-    private string AlertClass = "alert-success";
+    private bool IsSuccess;
 
     private async Task HandleSubmit()
     {
@@ -50,10 +51,10 @@
         var n1 = Calculation.ValueA;
         var n2 = Calculation.ValueB;
 
-        if(n1 == 0 && n2 == 0 && operation == "/")
+        if (n1 == 0 && n2 == 0 && operation == "/")
         {
             Message = "Não é possível dividir por zero.";
-            AlertClass = "alert-danger";
+            IsSuccess = false;
             return;
         }
 
@@ -81,13 +82,13 @@
         if (!response.IsSuccessStatusCode)
         {
             Message = $"Erro ao armazenar os dados: {response.ReasonPhrase}";
-            AlertClass = "alert-danger";
+            IsSuccess = false;
             return;
         }
 
         var result = await response.Content.ReadFromJsonAsync<int>();
         Message = $"Dados armazenados com sucesso, ID de Armazenamento {result}";
-        AlertClass = "alert-success";
+        IsSuccess = true;
 
         Calculation.ValueA = 0;
         Calculation.ValueB = 0;
