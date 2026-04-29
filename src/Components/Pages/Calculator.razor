@@ -1,28 +1,29 @@
 ﻿@page "/"
-@using CalculadoraTeste.Components.Model
+
 @rendermode InteractiveServer
 @inject IHttpClientFactory HttpClientFactory
 
 <PageTitle>Calculadora</PageTitle>
 
-<h1 class="text-center">Calculadora</h1>
+<FluentCard style="padding:20px; max-width:500px;">
+    <EditForm Model="Calculation" OnValidSubmit="HandleSubmit" FormName="Calculadora" class="row">
+        <h3 class="text-center">Calculo</h3>
+        <DataAnnotationsValidator />
+        <div class="col-md-6 d-flex flex-column justify-content-center">
+            <FluentNumberField Label="Valor A" Placeholder="Digite o primeiro valor" HideStep="true" @bind-Value="Calculation.ValueA"></FluentNumberField>
+            <ValidationMessage For="@(() => Calculation.ValueA)" class="text-danger" />
 
-<EditForm Model="Calculation" OnValidSubmit="HandleSubmit" FormName="Calculadora" class="row">
-    <DataAnnotationsValidator />
-    <div class="col-md-6 d-flex flex-column justify-content-center">
-        <FluentNumberField Label="Valor A" Placeholder="Digite o primeiro valor" HideStep="true" @bind-Value="Calculation.ValueA"></FluentNumberField>
-        <ValidationMessage For="@(() => Calculation.ValueA)" class="text-danger" />
-
-        <FluentNumberField Label="Valor B" Placeholder="Digite o segundo valor" HideStep="true" @bind-Value="Calculation.ValueB"></FluentNumberField>
-        <ValidationMessage For="@(() => Calculation.ValueB)" class="text-danger" />
-    </div>
-    <div class="col-md-6 d-flex flex-column justify-content-center">
-        <FluentButton Appearance="Appearance.Accent" @onclick='() => CalculateAsync("+")'>Adição</FluentButton>
-        <FluentButton Appearance="Appearance.Accent" @onclick='() => CalculateAsync("-")'>Subtração</FluentButton>
-        <FluentButton Appearance="Appearance.Accent" @onclick='() => CalculateAsync("*")'>Multiplicação</FluentButton>
-        <FluentButton Appearance="Appearance.Accent" @onclick='() => CalculateAsync("/")'> Divisão</FluentButton>
-    </div>
-</EditForm>
+            <FluentNumberField Label="Valor B" Placeholder="Digite o segundo valor" HideStep="true" @bind-Value="Calculation.ValueB"></FluentNumberField>
+            <ValidationMessage For="@(() => Calculation.ValueB)" class="text-danger" />
+        </div>
+        <div class="col-md-6 d-flex flex-column justify-content-center">
+            <FluentButton Appearance="Appearance.Accent" @onclick='() => CalculateAsync("+")'>Adição</FluentButton>
+            <FluentButton Appearance="Appearance.Accent" @onclick='() => CalculateAsync("-")'>Subtração</FluentButton>
+            <FluentButton Appearance="Appearance.Accent" @onclick='() => CalculateAsync("*")'>Multiplicação</FluentButton>
+            <FluentButton Appearance="Appearance.Accent" @onclick='() => CalculateAsync("/")'> Divisão</FluentButton>
+        </div>
+    </EditForm>
+</FluentCard>
 
 @if (!string.IsNullOrEmpty(Message))
 {

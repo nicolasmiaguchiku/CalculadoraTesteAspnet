@@ -1,10 +1,13 @@
 ﻿@page "/CalculationHistory"
 @rendermode InteractiveServer
+@inject IDialogService DialogService
 @inject IHttpClientFactory HttpClientFactory
 
 <PageTitle>Histórico de Cálculos</PageTitle>
 
 <h3 class="mt-4">Histórico de Cálculos</h3>
+
+<FluentButton Appearance="Appearance.Accent" @onclick="OpenCalculadoraForm">Calculo</FluentButton>
 
 @if (!string.IsNullOrEmpty(ErrorMessage))
 {
@@ -44,6 +47,11 @@
 @code {
     private List<CalculationDto> Calculations { get; set; } = new();
     private string? ErrorMessage;
+
+    public async Task OpenCalculadoraForm()
+    {
+        await DialogService.ShowDialogAsync<CalculadoraForm>(new DialogParameters());
+    }
 
     protected override async Task OnInitializedAsync()
     {
